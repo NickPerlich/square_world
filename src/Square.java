@@ -8,10 +8,7 @@ public class Square {
     private Color color;
 
     public Square(int x, int y, int size, Color color) {
-        this.x = x; 
-        this.y = y; 
-        this.size = size; 
-        this.color = color;
+        this.x = x; this.y = y; this.size = size; this.color = color;
     }
 
     public void draw(Graphics g) {
@@ -20,6 +17,8 @@ public class Square {
     }
 
     public void moveBy(int dx, int dy) { x += dx; y += dy; }
+    public void moveTo(int x, int y) { this.x = x; this.y = y; }
+
     public void clamp(int w, int h) {
         x = Math.max(0, Math.min(x, w - size));
         y = Math.max(0, Math.min(y, h - size));
@@ -29,3 +28,4 @@ public class Square {
     public int getY() { return y; }
     public int getSize() { return size; }
 }
+

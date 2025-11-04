@@ -1,28 +1,39 @@
 package src;
 
-// Main.java
 import javax.swing.*;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
 public class Main {
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
-            BlackBoard blackBoard = new BlackBoard();
-            WorldPanel world = new WorldPanel("nick", blackBoard);
+            String username = JOptionPane.showInputDialog("Enter your username:");
+            BlackBoard bb = new BlackBoard();
 
-            JFrame frame = new JFrame("Multiverse — Step 2");
+            MQTTPublisher publisher = new MQTTPublisher(username);
+            MQTTSubscriber subscriber = new MQTTSubscriber(bb);
+            bb.addPropertyChangeListener(publisher);
+
+            WorldPanel world = new WorldPanel(username, bb);
+            JFrame frame = new JFrame("Multiverse — Step 5");
             frame.setContentPane(world);
             frame.setSize(600, 400);
             frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
             frame.setLocationRelativeTo(null);
-            frame.setVisible(true);
-            world.requestFocusInWindow();
 
-            // Test: listen for location changes
-            blackBoard.addPropertyChangeListener(evt -> {
-                if ("location".equals(evt.getPropertyName())) {
-                    System.out.println("Published: " + evt.getNewValue());
+            // Disconnect on close
+            frame.addWindowListener(new WindowAdapter() {
+                @Override
+                public void windowClosing(WindowEvent e) {
+                    publisher.disconnect();
+                    subscriber.disconnect();
                 }
             });
+
+            frame.setVisible(true);
+            world.requestFocusInWindow();
+            world.repaint();
         });
     }
 }
+
