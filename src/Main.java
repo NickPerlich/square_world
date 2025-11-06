@@ -15,16 +15,20 @@ public class Main {
             bb.addPropertyChangeListener(publisher);
 
             WorldPanel world = new WorldPanel(username, bb);
-            JFrame frame = new JFrame("Multiverse — Step 5");
+            Thread gameLoop = new Thread(world);                  
+            new java.lang.Thread(gameLoop).start();               
+
+            JFrame frame = new JFrame("Multiverse");
             frame.setContentPane(world);
             frame.setSize(600, 400);
             frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
             frame.setLocationRelativeTo(null);
 
-            // Disconnect on close
+            // Graceful cleanup on close
             frame.addWindowListener(new WindowAdapter() {
                 @Override
                 public void windowClosing(WindowEvent e) {
+                    gameLoop.stop();
                     publisher.disconnect();
                     subscriber.disconnect();
                 }
@@ -36,4 +40,5 @@ public class Main {
         });
     }
 }
+
 

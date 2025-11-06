@@ -1,7 +1,30 @@
 package src;
 
-// Thread.java
-// NOTE: We'll likely rename this later to avoid confusion with java.lang.Thread.
+/**
+ * Custom update thread (Runnable) that calls WorldPanel.updateMovement()
+ * periodically in the background.
+ */
 public class Thread implements Runnable {
-    @Override public void run() { /* game/network loop later */ }
+    private final WorldPanel world;
+    private volatile boolean running = true;
+
+    public Thread(WorldPanel world) {
+        this.world = world;
+    }
+
+    @Override
+    public void run() {
+        while (running) {
+            try {
+                world.updateMovement();
+                java.lang.Thread.sleep(50); // ~20 FPS
+            } catch (InterruptedException e) {
+                running = false;
+            }
+        }
+    }
+
+    public void stop() {
+        running = false;
+    }
 }

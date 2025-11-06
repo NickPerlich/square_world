@@ -7,18 +7,17 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import javax.swing.Timer;
 
 public class WorldPanel extends JPanel implements KeyListener, PropertyChangeListener {
     private final Map<String, Square> avatars = new ConcurrentHashMap<>();
     private final String username;
     private final BlackBoard blackBoard;
     private final Set<Integer> pressedKeys = new HashSet<>();
-    private final Timer timer;
 
     public WorldPanel(String username, BlackBoard blackBoard) {
         this.username = username;
         this.blackBoard = blackBoard;
+
         setBackground(Color.WHITE);
         setFocusable(true);
         requestFocusInWindow();
@@ -26,14 +25,20 @@ public class WorldPanel extends JPanel implements KeyListener, PropertyChangeLis
         blackBoard.addPropertyChangeListener(this);
 
         avatars.put(username, new Square(100, 100, 32, Color.BLUE));
-
-        // run update loop every 50 ms (20 FPS)
-        timer = new Timer(50, e -> updateMovement());
-        timer.start();
         System.out.println("WorldPanel created, avatars = " + avatars.size());
+
+        SwingUtilities.invokeLater(() -> {
+            Square me = avatars.get(username);
+            int w = getWidth();
+            int h = getHeight();
+            int size = me.getSize();
+            me.moveTo(w / 2 - size / 2, h / 2 - size / 2);
+            repaint();
+        });
     }
 
-    private void updateMovement() {
+    /** Called repeatedly by background thread */
+    public void updateMovement() {
         try {
             Square me = avatars.get(username);
             if (me == null) return;
@@ -51,30 +56,20 @@ public class WorldPanel extends JPanel implements KeyListener, PropertyChangeLis
                 blackBoard.publishLocalLocation(username, me.getX(), me.getY());
             }
         } catch (Exception ex) {
-            ex.printStackTrace(); // see if anything is failing
+            ex.printStackTrace();
         }
     }
 
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
-
         for (Square s : avatars.values()) {
             s.draw(g);
         }
     }
 
-
-    @Override
-    public void keyPressed(KeyEvent e) {
-        pressedKeys.add(e.getKeyCode());
-    }
-
-    @Override
-    public void keyReleased(KeyEvent e) {
-        pressedKeys.remove(e.getKeyCode());
-    }
-
+    @Override public void keyPressed(KeyEvent e) { pressedKeys.add(e.getKeyCode()); }
+    @Override public void keyReleased(KeyEvent e) { pressedKeys.remove(e.getKeyCode()); }
     @Override public void keyTyped(KeyEvent e) {}
 
     @Override
@@ -82,7 +77,8 @@ public class WorldPanel extends JPanel implements KeyListener, PropertyChangeLis
         if ("remoteLocation".equals(evt.getPropertyName())) {
             BlackBoard.Location loc = (BlackBoard.Location) evt.getNewValue();
             if (!loc.username().equals(username)) {
-                avatars.putIfAbsent(loc.username(), new Square(loc.x(), loc.y(), 32, Color.RED));
+                avatars.putIfAbsent(loc.username(),
+                        new Square(loc.x(), loc.y(), 32, Color.RED));
                 avatars.get(loc.username()).moveTo(loc.x(), loc.y());
                 repaint();
             }

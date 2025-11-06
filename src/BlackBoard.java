@@ -6,19 +6,19 @@ import java.beans.PropertyChangeSupport;
 public class BlackBoard {
     private final PropertyChangeSupport pcs = new PropertyChangeSupport(this);
 
-    public void addPropertyChangeListener(PropertyChangeListener listener) {
-        pcs.addPropertyChangeListener(listener);
+    public void addPropertyChangeListener(PropertyChangeListener l) {
+        pcs.addPropertyChangeListener(l);
     }
-    public void removePropertyChangeListener(PropertyChangeListener listener) {
-        pcs.removePropertyChangeListener(listener);
+    public void removePropertyChangeListener(PropertyChangeListener l) {
+        pcs.removePropertyChangeListener(l);
     }
 
-    // Called when you move locally
+    // Local events (from your own movement)
     public void publishLocalLocation(String username, int x, int y) {
         pcs.firePropertyChange("localLocation", null, new Location(username, x, y));
     }
 
-    // Called when MQTT receives someone else’s movement
+    // Remote events (from MQTT messages)
     public void publishRemoteLocation(String username, int x, int y) {
         pcs.firePropertyChange("remoteLocation", null, new Location(username, x, y));
     }

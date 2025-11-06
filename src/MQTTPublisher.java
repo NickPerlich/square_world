@@ -45,6 +45,4 @@ public class MQTTPublisher implements PropertyChangeListener {
             e.printStackTrace();
         }
     }
-
 }
-
