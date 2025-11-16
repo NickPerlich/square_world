@@ -1,5 +1,5 @@
 compile:
-javac -cp "library/org.eclipse.paho.client.mqttv3-1.2.5.jar;src" -d bin src/*.java
+mvn clean package
 
 run:
-java  -cp "library/org.eclipse.paho.client.mqttv3-1.2.5.jar;bin" src.Main
+java -jar target/multiverse-1.0-SNAPSHOT-shaded.jar
