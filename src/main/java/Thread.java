@@ -1,4 +1,4 @@
-package src;
+//package src.main.java;
 
 /**
  * Custom update thread (Runnable) that calls WorldPanel.updateMovement()
@@ -17,7 +17,7 @@ public class Thread implements Runnable {
         while (running) {
             try {
                 world.updateMovement();
-                java.lang.Thread.sleep(50); // ~20 FPS
+                java.lang.Thread.sleep(16); // ~20 FPS
             } catch (InterruptedException e) {
                 running = false;
             }

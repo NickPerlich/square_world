@@ -1,4 +1,4 @@
-package src;
+//package src.main.java;
 
 import javax.swing.*;
 import java.awt.*;
@@ -14,28 +14,26 @@ public class WorldPanel extends JPanel implements KeyListener, PropertyChangeLis
     private final BlackBoard blackBoard;
     private final Set<Integer> pressedKeys = new HashSet<>();
 
-    public WorldPanel(String username, BlackBoard blackBoard) {
-        this.username = username;
-        this.blackBoard = blackBoard;
+    public WorldPanel(String username, BlackBoard blackBoard, Color color) {
+    this.username = username;
+    this.blackBoard = blackBoard;
+    setBackground(Color.WHITE);
+    setFocusable(true);
+    addKeyListener(this);
+    blackBoard.addPropertyChangeListener(this);
 
-        setBackground(Color.WHITE);
-        setFocusable(true);
-        requestFocusInWindow();
-        addKeyListener(this);
-        blackBoard.addPropertyChangeListener(this);
+    avatars.put(username, new Square(100, 100, 32, color)); 
 
-        avatars.put(username, new Square(100, 100, 32, Color.BLUE));
-        System.out.println("WorldPanel created, avatars = " + avatars.size());
+    SwingUtilities.invokeLater(() -> {
+        Square me = avatars.get(username);
+        int w = getWidth();
+        int h = getHeight();
+        int size = me.getSize();
+        me.moveTo(w / 2 - size / 2, h / 2 - size / 2);
+        repaint();
+    });
+}
 
-        SwingUtilities.invokeLater(() -> {
-            Square me = avatars.get(username);
-            int w = getWidth();
-            int h = getHeight();
-            int size = me.getSize();
-            me.moveTo(w / 2 - size / 2, h / 2 - size / 2);
-            repaint();
-        });
-    }
 
     /** Called repeatedly by background thread */
     public void updateMovement() {
@@ -53,8 +51,9 @@ public class WorldPanel extends JPanel implements KeyListener, PropertyChangeLis
             repaint();
 
             if (!pressedKeys.isEmpty()) {
-                blackBoard.publishLocalLocation(username, me.getX(), me.getY());
+                blackBoard.publishLocalLocation(username, me.getX(), me.getY(), me.getColor());
             }
+
         } catch (Exception ex) {
             ex.printStackTrace();
         }
